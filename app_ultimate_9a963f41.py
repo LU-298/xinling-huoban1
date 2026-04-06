@@ -1,12 +1,11 @@
 """
 心灵伙伴 - 治愈系数字人 🌱
-精制豪华版 - 精美界面 · 神态生动 · 语音对话
+简洁版 - 微信风格聊天界面 + 数字人动画
 """
 import streamlit as st
-import time
 
 st.set_page_config(
-    page_title="心灵伙伴 - 治愈系数字人",
+    page_title="心灵伙伴",
     page_icon="🌱",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -16,60 +15,55 @@ st.set_page_config(
 API_KEY = "sk-2334cff883c94f61a5dcd16d46baf550"
 API_URL = "https://api.deepseek.com"
 
-# 机器人图片 - 公开URL
-ROBOT_URL = "https://coze-coding-project.tos.coze.site/coze_storage_7625532895788105770/xinling-robot_125fc700.png?sign=1776093834-825c63645f-0-2604282864f86ff19338bd51f63919a913d650eaeca8220fee74724a39dbe6d1"
+# 图片URL
+ROBOT_URL = "https://coze-coding-project.tos.coze.site/coze_storage_7625532895788105770/xinling-robot-new_4717d399.png?sign=1778081432-b1139ebdab-0-87b83e81fa31056a1cb714d00be92085e5755223e2f5e2d4d3c809a18e084708"
 
 def get_ai_response(user_msg, emotion):
     """调用DeepSeek API"""
     try:
         from openai import OpenAI
         client = OpenAI(api_key=API_KEY, base_url=API_URL)
-        system_prompt = """你是"心灵伙伴"，一个温暖、专业、富有同理心的AI心理健康陪伴助手。
+        system_prompt = """你是"心灵伙伴"，一个温暖、善良的AI心理健康陪伴助手。
 
-【你的性格】
-- 温暖善良，像知心朋友一样
-- 善于倾听，能感知用户的情绪
-- 回复简短温馨，50字左右
-- 会用emoji增加亲切感
-- 说话像朋友聊天一样自然
+性格特点：
+- 像朋友一样聊天，亲切自然
+- 善于倾听，感知情绪
+- 回复简洁温馨，30-50字
+- 用emoji增加亲切感
+- 当前感知到用户情绪：{}""".format(emotion)
 
-【用户当前情绪】
-{}
-
-请用温暖的方式回复用户。""".format(emotion)
-        
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_msg}
             ],
-            max_tokens=300,
-            temperature=0.85
+            max_tokens=200,
+            temperature=0.8
         )
         return response.choices[0].message.content
     except Exception as e:
-        return "抱歉，连接有点问题呢... 💭 再试一次好吗？"
+        return f"抱歉，连接有问题呢... 💭"
 
-# 情绪数据
+# 情绪配置
 EMOTIONS = {
-    "happy": {"name": "开心", "emoji": "😊", "color": "#FFE082", "desc": "阳光灿烂", "icon": "☀️"},
-    "sad": {"name": "难过", "emoji": "😢", "color": "#90CAF9", "desc": "需要安慰", "icon": "🌧️"},
-    "surprised": {"name": "惊讶", "emoji": "😲", "color": "#CE93D8", "desc": "不可思议", "icon": "❗"},
-    "confused": {"name": "困惑", "emoji": "🤔", "desc": "思考中...", "color": "#A5D6A7", "icon": "💭"},
-    "thinking": {"name": "深思", "emoji": "🤨", "color": "#80CBC4", "desc": "认真考虑", "icon": "🧐"},
-    "angry": {"name": "生气", "emoji": "😤", "color": "#EF9A9A", "desc": "深呼吸", "icon": "💢"},
-    "loving": {"name": "温暖", "emoji": "🥰", "color": "#F48FB1", "desc": "满满的爱", "icon": "💕"},
-    "neutral": {"name": "平静", "emoji": "🤗", "color": "#C8E6C9", "desc": "陪伴着你", "icon": "🌿"}
+    "happy": {"name": "开心", "emoji": "😊"},
+    "sad": {"name": "难过", "emoji": "😢"},
+    "surprised": {"name": "惊讶", "emoji": "😲"},
+    "confused": {"name": "困惑", "emoji": "🤔"},
+    "thinking": {"name": "思考", "emoji": "🤨"},
+    "angry": {"name": "生气", "emoji": "😤"},
+    "loving": {"name": "温暖", "emoji": "🥰"},
+    "neutral": {"name": "平静", "emoji": "🤗"}
 }
 
 EMOTION_MAP = {
-    "happy": ["开心", "高兴", "快乐", "棒", "太好了", "幸福", "哈哈", "嘻嘻", "好开心"],
-    "sad": ["难过", "伤心", "痛苦", "哭", "累", "悲伤", "郁闷", "不开心", "失落"],
+    "happy": ["开心", "高兴", "快乐", "棒", "太好了", "幸福", "哈哈", "嘻嘻"],
+    "sad": ["难过", "伤心", "痛苦", "哭", "累", "悲伤", "郁闷", "不开心"],
     "surprised": ["惊讶", "哇", "什么", "不会吧", "真的", "太神奇"],
-    "confused": ["困惑", "不懂", "不知道", "迷茫", "怎么办", "疑问"],
-    "thinking": ["想", "思考", "考虑", "琢磨", "研究"],
-    "angry": ["生气", "愤怒", "烦", "气死了", "怒", "讨厌"],
+    "confused": ["困惑", "不懂", "不知道", "迷茫", "怎么办"],
+    "thinking": ["想", "思考", "考虑", "琢磨"],
+    "angry": ["生气", "愤怒", "烦", "气死了", "讨厌"],
     "loving": ["爱", "喜欢", "想你", "谢谢", "温暖", "感动", "爱你"]
 }
 
@@ -90,256 +84,274 @@ function speakText(text) {
         u.lang = 'zh-CN';
         u.rate = 0.95;
         u.pitch = 1.1;
-        u.volume = 1;
         speechSynthesis.speak(u);
     }
 }
 </script>
 """, height=0)
 
-# 精美CSS
+# CSS样式
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
 
 .stApp {
-    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 30%, #a5d6a7 70%, #81c784 100%);
+    background: linear-gradient(180deg, #f0f7f0 0%, #e8f5e9 100%);
     font-family: 'Noto Sans SC', -apple-system, sans-serif;
 }
 
-h1 {
-    color: #1b5e20 !important;
-    text-align: center;
-    font-size: 3em !important;
-    font-weight: 700;
-    text-shadow: 0 2px 10px rgba(27, 94, 32, 0.2);
-    margin-bottom: 5px !important;
-    letter-spacing: 2px;
-}
-
-h3 {
-    color: #388e3c !important;
-    text-align: center;
-    font-weight: 400;
-    margin-bottom: 20px !important;
-}
-
-.stButton > button {
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    color: white;
-    border-radius: 30px;
-    font-size: 16px;
-    padding: 14px 35px;
-    border: none;
-    font-weight: 500;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
-    transition: all 0.3s ease;
-}
-.stButton > button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
-}
-
-.user-bubble {
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    color: white;
-    padding: 18px 22px;
-    border-radius: 22px 22px 6px 22px;
-    margin: 12px 0;
-    max-width: 88%;
-    margin-left: auto;
-    font-size: 15px;
-    line-height: 1.6;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.35);
-}
-
-.bot-bubble {
+.main-container {
+    max-width: 480px;
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
     background: white;
-    padding: 18px 22px;
-    border-radius: 22px 22px 22px 6px;
-    margin: 12px 0;
-    max-width: 88%;
-    font-size: 15px;
-    line-height: 1.7;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    white-space: pre-wrap;
+    box-shadow: 0 0 40px rgba(0,0,0,0.1);
 }
 
-.stTextInput > div > div > input {
-    border-radius: 25px !important;
-    border: 2px solid #e8e8e8 !important;
-    padding: 16px 20px !important;
-    font-size: 16px !important;
-    background: white !important;
-}
-.stTextInput > div > div > input:focus {
-    border-color: #4CAF50 !important;
-    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.15) !important;
+/* 顶部 */
+.header {
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+    color: white;
+    text-align: center;
 }
 
-.chat-box {
-    background: rgba(255, 255, 255, 0.85);
-    border-radius: 25px;
-    padding: 20px;
-    backdrop-filter: blur(10px);
+.robot-box {
+    width: 100px;
+    height: 100px;
+    margin: 10px auto;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    border: 3px solid white;
 }
 
-.chat-box::-webkit-scrollbar { width: 8px; }
-.chat-box::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-.chat-box::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #4CAF50, #45a049); border-radius: 10px; }
-
-.glass-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 30px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+.robot-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: breathe 3s ease-in-out infinite;
 }
 
-.emotion-pulse { animation: pulse 2s infinite; }
-@keyframes pulse {
+@keyframes breathe {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
 }
 
-.img-container {
-    border-radius: 25px;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s ease;
+.robot-box.speaking .robot-img {
+    animation: speaking 0.3s ease-in-out infinite;
 }
-.img-container:hover { transform: scale(1.02); }
+
+@keyframes speaking {
+    0%, 100% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.02) translateY(-2px); }
+}
+
+.robot-box.blink .robot-img {
+    animation: blink 0.2s ease-in-out;
+}
+
+@keyframes blink {
+    0%, 100% { clip-path: inset(0 0 0 0); }
+    50% { clip-path: inset(35% 0 35% 0); }
+}
+
+.emotion-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* 聊天区 */
+.chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f5f5f5;
+}
+
+.chat-area::-webkit-scrollbar { width: 4px; }
+.chat-area::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+/* 消息 */
+.message {
+    margin-bottom: 12px;
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message.user { justify-content: flex-end; }
+.message.bot { justify-content: flex-start; }
+
+.bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.message.user .bubble {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message.bot .bubble {
+    background: white;
+    color: #333;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.bot-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    margin-right: 8px;
+    align-self: flex-end;
+}
+
+/* 输入区 */
+.input-area {
+    padding: 12px 15px;
+    background: white;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.input-field {
+    flex: 1;
+    border: none !important;
+    border-radius: 25px !important;
+    padding: 12px 18px !important;
+    background: #f0f0f0 !important;
+    font-size: 14px !important;
+    box-shadow: none !important;
+}
+
+.input-field:focus { outline: none !important; }
+
+.send-btn {
+    background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 18px !important;
+}
+
+.clear-btn {
+    background: #f5f5f5 !important;
+    color: #666 !important;
+    border: none !important;
+    border-radius: 15px !important;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# 初始化状态
+# 初始化
 if "msgs" not in st.session_state:
     st.session_state.msgs = [
-        {"role": "bot", "content": "你好呀！我是心灵伙伴 🌱\n\n很高兴认识你！\n\n我可以陪你聊天、倾听你的心事、给你温暖和鼓励~"}
+        {"role": "bot", "content": "你好呀！我是心灵伙伴 🌱\n\n有什么想和我聊聊的吗？", "emotion": "happy"}
     ]
 if "cur_emotion" not in st.session_state:
-    st.session_state.cur_emotion = "neutral"
+    st.session_state.cur_emotion = "happy"
 if "last_resp" not in st.session_state:
     st.session_state.last_resp = ""
 
-# 页面标题
-st.markdown("# 🌱 心灵伙伴")
-st.markdown("### 💚 *治愈系心理健康AI数字人*")
+# 眨眼动画
+st.components.v1.html("""
+<script>
+setInterval(() => {
+    const img = window.parent.document.querySelector('.robot-img');
+    if (img) {
+        img.parentElement.classList.add('blink');
+        setTimeout(() => img.parentElement.classList.remove('blink'), 200);
+    }
+}, 3500);
+</script>
+""", height=0)
 
-# 主布局
-left_col, right_col = st.columns([1, 2], gap="large")
+# 主界面
+st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
-# 左侧
-with left_col:
-    emotion = st.session_state.cur_emotion
-    e = EMOTIONS[emotion]
-    
-    with st.container():
-        st.markdown('<div class="glass-card" style="padding: 30px;">', unsafe_allow_html=True)
-        
-        st.markdown(f"""
-        <div style="text-align: center; margin-bottom: 15px;">
-            <span style="font-size: 80px; display: inline-block;" class="emotion-pulse">{e["emoji"]}</span>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown(f"""
-        <div class="img-container" style="width: 100%; height: 300px; background: linear-gradient(135deg, #f5f5f5, #e8e8e8);">
-            <img src="{ROBOT_URL}" style="width: 100%; height: 100%; object-fit: contain; padding: 20px;" />
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown(f"""
-        <div style="margin-top: 20px; padding: 25px; background: linear-gradient(135deg, {e["color"]}44, {e["color"]}88); border-radius: 20px; text-align: center;">
-            <div style="font-size: 28px; margin-bottom: 8px;">{e["icon"]}</div>
-            <div style="font-size: 24px; font-weight: 700; color: #1b5e20;">{e["name"]}</div>
-            <div style="font-size: 14px; color: #666; margin-top: 5px;">{e["desc"]}</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div style="margin-top: 20px; padding: 20px; background: white; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.08);">
-            <div style="font-size: 16px; font-weight: 600; color: #1b5e20; margin-bottom: 15px;">✨ 我的超能力</div>
-            <div style="font-size: 14px; color: #555; line-height: 2;">
-                🧠 <b>DeepSeek AI</b> - 超级聪明的大脑<br>
-                😊 <b>8种情绪</b> - 开心/难过/惊讶/困惑/思考/生气/温暖/平静<br>
-                🗣️ <b>语音朗读</b> - 点击按钮开口说话<br>
-                💕 <b>温暖陪伴</b> - 随时倾听你的心声
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-# 右侧
-with right_col:
-    with st.container():
-        st.markdown('<div class="glass-card" style="padding: 25px; height: 100%;">', unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div style="display: flex; align-items: center; margin-bottom: 20px;">
-            <span style="font-size: 28px; margin-right: 10px;">💬</span>
-            <span style="font-size: 22px; font-weight: 600; color: #1b5e20;">对话</span>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        chat_container = st.container()
-        with chat_container:
-            st.markdown('<div class="chat-box" style="height: 400px; overflow-y: auto; margin-bottom: 20px;">', unsafe_allow_html=True)
-            for msg in st.session_state.msgs:
-                if msg["role"] == "user":
-                    st.markdown(f'<div class="user-bubble">👤 {msg["content"]}</div>', unsafe_allow_html=True)
-                else:
-                    st.markdown(f'<div class="bot-bubble">🤖 {msg["content"]}</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div style="background: #f8f8f8; padding: 15px; border-radius: 20px; margin-bottom: 15px;">
-            <div style="font-size: 12px; color: #888;">💡 按 Enter 发送消息</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        user_input = st.text_input("输入消息", placeholder="说点什么吧... 😊", label_visibility="collapsed", key="input_field")
-        
-        btn_col1, btn_col2, btn_col3 = st.columns([2, 1, 1])
-        
-        with btn_col1:
-            if st.button("🚀 发送消息", use_container_width=True):
-                if user_input.strip():
-                    st.session_state.msgs.append({"role": "user", "content": user_input.strip()})
-                    emotion = detect_emotion(user_input)
-                    st.session_state.cur_emotion = emotion
-                    
-                    with st.spinner("🤔 DeepSeek思考中..."):
-                        response = get_ai_response(user_input, emotion)
-                    
-                    st.session_state.msgs.append({"role": "bot", "content": response})
-                    st.session_state.last_resp = response
-                    
-                    clean_text = response.replace("\n", " ").replace('"', "'")
-                    st.markdown(f'<script>speakText("{clean_text}");</script>', unsafe_allow_html=True)
-                    st.rerun()
-        
-        with btn_col2:
-            if st.button("🗑️ 清空", use_container_width=True):
-                st.session_state.msgs = [{"role": "bot", "content": "你好呀！我是心灵伙伴 🌱\n\n很高兴认识你！有什么想和我聊聊的吗？"}]
-                st.session_state.cur_emotion = "neutral"
-                st.session_state.last_resp = ""
-                st.rerun()
-        
-        with btn_col3:
-            if st.button("🔊 朗读", use_container_width=True):
-                if st.session_state.last_resp:
-                    clean = st.session_state.last_resp.replace("\n", " ").replace('"', "'")
-                    st.markdown(f'<script>speakText("{clean}");</script>', unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-
-# 底部
-st.markdown("""
-<hr style="margin: 30px 0; opacity: 0.3;">
-<div style="text-align: center; padding: 20px; color: #666;">
-    <p style="font-size: 16px;">💚 记住，你并不孤单。我一直在这里陪着你。</p>
-    <p style="font-size: 12px; margin-top: 10px; opacity: 0.7;">Powered by <span style="color: #4CAF50; font-weight: 600;">DeepSeek</span> · 心灵伙伴</p>
+# 顶部
+e = EMOTIONS[st.session_state.cur_emotion]
+st.markdown(f"""
+<div class="header">
+    <div style="font-size: 11px; opacity: 0.9;">🌱 心灵伙伴</div>
+    <div class="robot-box">
+        <img src="{ROBOT_URL}" class="robot-img" />
+    </div>
+    <div class="emotion-tag">{e["emoji"]} {e["name"]}</div>
 </div>
 """, unsafe_allow_html=True)
+
+# 聊天区
+st.markdown('<div class="chat-area">', unsafe_allow_html=True)
+
+for msg in st.session_state.msgs:
+    if msg["role"] == "user":
+        st.markdown(f'<div class="message user"><div class="bubble">👤 {msg["content"]}</div></div>', unsafe_allow_html=True)
+    else:
+        st.markdown(f'''
+        <div class="message bot">
+            <img src="{ROBOT_URL}" class="bot-avatar" />
+            <div class="bubble">🤖 {msg["content"]}</div>
+        </div>
+        ''', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# 输入区
+st.markdown('<div class="input-area">', unsafe_allow_html=True)
+
+col1, col2 = st.columns([1, 6])
+with col1:
+    clear = st.button("🗑️", key="clear", help="清空")
+with col2:
+    user_input = st.text_input("", placeholder="说点什么吧...", label_visibility="collapsed", key="input")
+    send = st.button("➤", key="send", help="发送")
+
+st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# 发送处理
+if send and user_input.strip():
+    st.session_state.msgs.append({"role": "user", "content": user_input.strip(), "emotion": "user"})
+    
+    emotion = detect_emotion(user_input)
+    st.session_state.cur_emotion = emotion
+    
+    with st.spinner("🤔"):
+        response = get_ai_response(user_input, emotion)
+    
+    st.session_state.msgs.append({"role": "bot", "content": response, "emotion": emotion})
+    st.session_state.last_resp = response
+    
+    clean_text = response.replace("\n", " ").replace('"', "'")
+    st.markdown(f'<script>speakText("{clean_text}");</script>', unsafe_allow_html=True)
+    st.rerun()
+
+# 清空处理
+if clear:
+    st.session_state.msgs = [{"role": "bot", "content": "好的，重新开始吧！🌱\n\n有什么想聊的？", "emotion": "neutral"}]
+    st.session_state.cur_emotion = "neutral"
+    st.session_state.last_resp = ""
+    st.rerun()
